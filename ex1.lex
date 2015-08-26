@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <string>
+#include <iostream>
 #include <unordered_map>
 
 int numwords = 0;
@@ -17,28 +18,13 @@ typedef pair<string,string> StringPair;
 
 StringHashMap words;
 
-%}
-
-PALAVRA 	[^ \t\n]+
-NUMERO 		{DIGITO}+[\.]*{DIGITO}+
-FRASE			(^|\.){PALAVRA}[\.]
-
-%%
-
-{PALAVRA} { word_processing(); }
-{FRASE}		{ cout << "frase " + yytext + " encontrada"; }
-.
-
-\n
-%%
-
 void word_processing(){
 	/* Lógica é um tanto simples, inserimos em um HashMap para manter a contagem
 		 de quantas palavras são diferentes
 	 */
 	string str_matched(yytext);
 
-	cout << "palavra " + str_matched + " encontrada";
+	cout << "palavra " + str_matched + " encontrada" << endl;
 
 	//Primeira vez, adiciona no hash map
 	if( words.find(str_matched) != words.end() ){
@@ -50,6 +36,19 @@ void word_processing(){
 
 	numwords++;
 }
+
+%}
+
+PALAVRA 	[^ \t\n\.,]+
+NUMERO 		{DIGITO}+[\.]*{DIGITO}+
+
+%%
+
+{PALAVRA} { word_processing(); }
+.
+
+\n
+%%
 
 int main(int argc, char *argv[]){
 	yyin = fopen(argv[1], "r");
