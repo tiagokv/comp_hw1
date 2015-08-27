@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <unordered_map>
 
 int numwords = 0;
@@ -65,10 +66,15 @@ int main(int argc, char *argv[]){
 	yylex();
 	fclose(yyin);
 
-	printf("Número de palavras: %d\n", numwords);
-	printf("Número de palavras diferentes : %d\n", words.size() );
-	printf("A densidade léxica é de %f\n", (words.size()/(float)numwords)*100);
-	printf("Número de frases : %d\n", numphrases );
+	ofstream file;
+	file.open("stats.txt");
+
+	file << "Número de palavras: " << numwords << endl;
+	file << "Número de palavras diferentes: " << words.size() << endl;
+	file << "A densidade léxica é: " << (words.size()/(float)numwords)*100 << endl;
+	file << "Número de frases: " << numphrases << endl;
+
+	file.close();
 
 	return 0;
 }
