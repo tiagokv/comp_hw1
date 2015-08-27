@@ -9,7 +9,7 @@
 
 int numwords = 0;
 int numnum = 0;
-int numtag = 0;
+int numphrases = 0;
 
 using namespace std;
 
@@ -24,10 +24,10 @@ void word_processing(){
 	 */
 	string str_matched(yytext);
 
-	cout << "palavra " + str_matched + " encontrada" << endl;
+	//cout << "palavra " + str_matched + " encontrada" << endl;
 
 	//Primeira vez, adiciona no hash map
-	if( words.find(str_matched) != words.end() ){
+	if( words.find(str_matched) == words.end() ){
 
 		StringPair p( str_matched, str_matched );
 		words.insert(p);
@@ -37,16 +37,26 @@ void word_processing(){
 	numwords++;
 }
 
+void phrase_processing(){
+	string str_matched(yytext);
+
+	cout << "frase " + str_matched + " encontrada" << endl;
+
+	numphrases++;
+}
+
 %}
 
 PALAVRA 	[^ \t\n\.,]+
-NUMERO 		{DIGITO}+[\.]*{DIGITO}+
-
+NUMERO 		{DIGITO}+[\.]?{DIGITO}+
+/*FRASE			[^\t\n\.]+[\.] {FRASE}		{ phrase_processing(); };  Não pode ser utilizado, sempre pega...*/
+/* o maior match (que é a frase) daria pra utilizar o REJECT, mas ele rejeita inclusiva a frase pegando */
+/* todas as combinações da frase: "Tiago é foda." -> " é foda." -> "é foda." ... */
 %%
 
 {PALAVRA} { word_processing(); }
+\.				numphrases++;
 .
-
 \n
 %%
 
@@ -57,6 +67,8 @@ int main(int argc, char *argv[]){
 
 	printf("Número de palavras: %d\n", numwords);
 	printf("Número de palavras diferentes : %d\n", words.size() );
+	printf("A densidade léxica é de %f\n", (words.size()/(float)numwords)*100);
+	printf("Número de frases : %d\n", numphrases );
 
 	return 0;
 }
