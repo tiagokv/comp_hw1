@@ -17,11 +17,24 @@ using namespace std;
 typedef unordered_map<string,string> StringHashMap;
 typedef pair<string,string> StringPair;
 
-StringHashMap words;
+StringHashMap clases;
+StringHashMap methods;
 
 %}
 
+/*http://docs.oracle.com/javase/specs/jls/se7/html/jls-3.html#jls-3.8*/
+JAVALETTER  [a-zA-Z_]
+JAVADIGIT   [0-9]
+IDENTIFIER  {JAVALETTER}+[{JAVALETTER}{JAVADIGIT}]*
+
+PALAVRA 	[^ \t\n\.,]+
+CLASS   "public"[ \t\n]*"class"[ \t\n]*{IDENTIFIER}[ \t\n]*"{"
+METHOD  "public"[ \t\n]+{IDENTIFIER}[ \t\n]+{IDENTIFIER}[ \t\n]*"("
+
 %%
+
+{CLASS}     {printf("classe encontrada %s\n", yytext);}
+{METHOD}    {printf("metodo encontrada %s\n", yytext);}
 
 .
 \n
@@ -38,10 +51,10 @@ int main(int argc, char *argv[]){
 		yylex();
 		fclose(yyin);
 
-		file << "Número de palavras: " << numwords << endl;
-		file << "Número de palavras diferentes: " << words.size() << endl;
-		file << "A densidade léxica é: " << (words.size()/(float)numwords)*100 << endl;
-		file << "Número de frases: " << numphrases << endl;
+		//file << "Número de palavras: " << numwords << endl;
+		//file << "Número de palavras diferentes: " << words.size() << endl;
+		//file << "A densidade léxica é: " << (words.size()/(float)numwords)*100 << endl;
+		//file << "Número de frases: " << numphrases << endl;
 
 	}
 
