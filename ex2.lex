@@ -30,8 +30,21 @@ IDENTIFIER  {JAVALETTER}+[{JAVALETTER}{JAVADIGIT}]*
 PALAVRA 	[^ \t\n\.,]+
 CLASS   "public"[ \t\n]*"class"[ \t\n]*{IDENTIFIER}[ \t\n]*"{"
 METHOD  "public"[ \t\n]+{IDENTIFIER}[ \t\n]+{IDENTIFIER}[ \t\n]*"("
+COMMENT "//"
+COMMENT_BEGIN "/*"
+COMMENT_END "*/"
 
+%s comment1 comment2
 %%
+
+<INITIAL>{COMMENT}   {BEGIN(comment1);}
+<comment1>.
+<comment1>[\n]+ {BEGIN(INITIAL);}
+
+<INITIAL>{COMMENT_BEGIN}   {BEGIN(comment2);}
+<comment2>[^{COMMENT_END}]
+<comment2>{COMMENT_END} {BEGIN(INITIAL);}
+
 
 {CLASS}     {printf("classe encontrada %s\n", yytext);}
 {METHOD}    {printf("metodo encontrada %s\n", yytext);}
