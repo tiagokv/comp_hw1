@@ -27,27 +27,42 @@ JAVALETTER  [a-zA-Z_]
 JAVADIGIT   [0-9]
 IDENTIFIER  {JAVALETTER}+[{JAVALETTER}{JAVADIGIT}]*
 
-PALAVRA 	[^ \t\n\.,]+
-CLASS   "public"[ \t\n]*"class"[ \t\n]*{IDENTIFIER}[ \t\n]*"{"
-METHOD  "public"[ \t\n]+{IDENTIFIER}[ \t\n]+{IDENTIFIER}[ \t\n]*"("
+/*comentarios*/
 COMMENT "//"
 COMMENT_BEGIN "/*"
 COMMENT_END "*/"
 
-%s comment1 comment2
+/*Terminais. Quando encontra um reseta o estado*/
+TERMINAL ["("|")"|"{"|"}"|";"|"="]
+
+%s comment1 comment2 pub class declaration method
 %%
 
+{TERMINAL} {BEGIN(INITIAL);}
+
+    /*Tratamento de comentarios de uma linha */
 <INITIAL>{COMMENT}   {BEGIN(comment1);}
 <comment1>.
 <comment1>[\n]+ {BEGIN(INITIAL);}
 
+    /*Tratamento de comentarios de varias linhas */
 <INITIAL>{COMMENT_BEGIN}   {BEGIN(comment2);}
 <comment2>[^{COMMENT_END}]
 <comment2>{COMMENT_END} {BEGIN(INITIAL);}
 
+    /* Quando encontra public existe a declaracao de um objeto publico */
+<INITIAL>"public" {BEGIN(pub);}
 
-{CLASS}     {printf("classe encontrada %s\n", yytext);}
-{METHOD}    {printf("metodo encontrada %s\n", yytext);}
+    /* Ao encontrar class o proximo identificador e o nome da classe */
+<pub>"class" {BEGIN(class);}
+<class>{IDENTIFIER}     {printf("classe: %s\n", yytext); BEGIN(INITIAL);}
+
+    /* se encontra mais um identificador e uma variavel ou metodo */
+<pub>{IDENTIFIER}               {BEGIN(declaration);}
+    /* se e uma atribuicao ou termina com ; e a declaracao de uma variavel */
+<declaration>{IDENTIFIER}[ \t\n]*";"|"="    {BEGIN(INITIAL);}
+    /* se e seguido apenas de um identificador entao e um metodo */
+<declaration>{IDENTIFIER} {printf("metodo: %s\n", yytext); BEGIN(INITIAL);}
 
 .
 \n
