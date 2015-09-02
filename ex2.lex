@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include <unordered_map>
+#include <vector>
 
 int numwords = 0;
 int numnum = 0;
@@ -14,11 +15,49 @@ int numphrases = 0;
 
 using namespace std;
 
-typedef unordered_map<string,string> StringHashMap;
-typedef pair<string,string> StringPair;
+typedef unordered_map<string,vector<string>*> ClassSpecs;
+typedef pair<string,vector<string>*> ClassSpec;
 
-StringHashMap clases;
-StringHashMap methods;
+ClassSpecs classes;
+string sCurrentClass;
+
+void class_processing(){
+
+	ClassSpecs::iterator it;
+	string str_matched(yytext);
+	sCurrentClass = str_matched;
+
+	it = classes.find(sCurrentClass);
+	if( it != classes.end() ){
+		cout << str_matched << " already exists (it will appear only once)";
+		return;
+	}
+
+	vector<string>* methods = new vector<string>();
+	ClassSpec class_specification(str_matched,methods);
+	classes.insert(class_specification);
+
+}
+
+void method_processing(){
+
+	ClassSpecs::iterator it;
+	string str_matched(yytext);
+
+	if( sCurrentClass.empty() == false ){
+
+		it = classes.find(sCurrentClass);
+		if( it != classes.end() ){
+			it->second->push_back( str_matched );
+		}else{
+			cout << "Class " << sCurrentClass << " not found.";
+		}
+
+	}else{
+		cout << "Method " << str_matched << " without class.";
+	}
+
+}
 
 %}
 
@@ -55,14 +94,14 @@ TERMINAL ["("|")"|"{"|"}"|";"|"="]
 
     /* Ao encontrar class o proximo identificador e o nome da classe */
 <pub>"class" {BEGIN(class);}
-<class>{IDENTIFIER}     {printf("classe: %s\n", yytext); BEGIN(INITIAL);}
+<class>{IDENTIFIER}     {class_processing(); BEGIN(INITIAL);}
 
     /* se encontra mais um identificador e uma variavel ou metodo */
 <pub>{IDENTIFIER}               {BEGIN(declaration);}
     /* se e uma atribuicao ou termina com ; e a declaracao de uma variavel */
 <declaration>{IDENTIFIER}[ \t\n]*";"|"="    {BEGIN(INITIAL);}
     /* se e seguido apenas de um identificador entao e um metodo */
-<declaration>{IDENTIFIER} {printf("metodo: %s\n", yytext); BEGIN(INITIAL);}
+<declaration>{IDENTIFIER} {method_processing(); BEGIN(INITIAL);}
 
 .
 \n
@@ -70,20 +109,24 @@ TERMINAL ["("|")"|"{"|"}"|";"|"="]
 
 int main(int argc, char *argv[]){
 
-	ofstream file;
-	file.open("stats_ex2.txt");
-
 	for(int i = 0; i < argc; i++){
 
 		yyin = fopen(argv[i], "r");
 		yylex();
 		fclose(yyin);
 
-		//file << "Número de palavras: " << numwords << endl;
-		//file << "Número de palavras diferentes: " << words.size() << endl;
-		//file << "A densidade léxica é: " << (words.size()/(float)numwords)*100 << endl;
-		//file << "Número de frases: " << numphrases << endl;
+	}
 
+	ofstream file;
+	file.open("stats_ex2.txt");
+
+	for (ClassSpecs::iterator it=classes.begin(); it!=classes.end(); ++it){
+		file << "Classe: " << it->first << endl;
+		vector<string>* methods = it->second;
+
+		for (vector<string>::iterator it=methods->begin(); it!=methods->end(); ++it){
+			file << "\n "	<< *it << endl;
+		}
 	}
 
 	file.close();
