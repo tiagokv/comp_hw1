@@ -77,7 +77,9 @@ TERMINAL ["("|")"|"{"|"}"|";"|"="]
 %s comment1 comment2 pub class declaration method
 %%
 
-{TERMINAL} {BEGIN(INITIAL);}
+<pub>{TERMINAL} 				{BEGIN(INITIAL);}
+<class>{TERMINAL} 			{BEGIN(INITIAL);}
+<declaration>{TERMINAL} {BEGIN(INITIAL);}
 
     /*Tratamento de comentarios de uma linha */
 <INITIAL>{COMMENT}   {BEGIN(comment1);}
@@ -118,7 +120,7 @@ int main(int argc, char *argv[]){
 	}
 
 	ofstream file;
-	file.open("stats_ex2.txt");
+	file.open("ex2_stats.txt");
 
 	for (ClassSpecs::iterator it=classes.begin(); it!=classes.end(); ++it){
 		file << "Classe: " << it->first << endl;
