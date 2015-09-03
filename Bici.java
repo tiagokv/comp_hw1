@@ -36,7 +36,7 @@ public class Bici {
         speed += increment;
     }
 
-    public String getName(){
+    public static String getName(){
       return name;
     }
 

@@ -96,9 +96,11 @@ TERMINAL ["("|")"|"{"|"}"|";"|"="]
 
     /* Ao encontrar class o proximo identificador e o nome da classe */
 <pub>"class" {BEGIN(class);}
+<pub>"abstract"
 <class>{IDENTIFIER}     {class_processing(); BEGIN(INITIAL);}
 
     /* se encontra mais um identificador e uma variavel ou metodo */
+<pub>"static"    
 <pub>{IDENTIFIER}               {BEGIN(declaration);}
     /* se e uma atribuicao ou termina com ; e a declaracao de uma variavel */
 <declaration>{IDENTIFIER}[ \t\n]*";"|"="    {BEGIN(INITIAL);}

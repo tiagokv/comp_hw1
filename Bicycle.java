@@ -1,4 +1,4 @@
-public class Bicycle {
+public abstract class Bicycle {
 
     // the Bicycle class has
     // three fields
@@ -18,7 +18,7 @@ public class Bicycle {
      four methods
      */
 
-    public void setCadence(int newValue) {
+    public static void setCadence(int newValue) {
         cadence = newValue;
     }
 
